@@ -1173,7 +1173,7 @@
         <h2>You're all set.</h2>
         <p>
           Your intake form has been received. We'll be in touch within 24–48
-          hours to schedule your consultation.
+          hours to schedule your session.
         </p>
       </div>
     </div>
@@ -1184,6 +1184,7 @@
       const ctx = canvas.getContext("2d");
       let drawing = false;
       let hasSig = false;
+      let signatureImageData = "";
       let signatureScrollY = 0;
       const form = document.getElementById("intakeForm");
       const emailInput = document.getElementById("email");
@@ -1196,16 +1197,14 @@
       function clearFieldError(field) {
         if (!field) return;
         field.classList.remove("is-invalid");
-        field
-          .querySelectorAll(".field-error")
-          .forEach((error) => {
-            if (error.classList.contains("signature-error-slot")) {
-              error.textContent = "";
-              return;
-            }
+        field.querySelectorAll(".field-error").forEach((error) => {
+          if (error.classList.contains("signature-error-slot")) {
+            error.textContent = "";
+            return;
+          }
 
-            error.remove();
-          });
+          error.remove();
+        });
       }
 
       function clearFormError() {
@@ -1297,7 +1296,7 @@
       }
 
       function resizeCanvas() {
-        const signatureData = sigDataInput.value;
+        const signatureData = signatureImageData;
         const pad = canvas.parentElement;
         const rect = pad.getBoundingClientRect();
         const dpr = window.devicePixelRatio || 1;
@@ -1370,12 +1369,14 @@
       canvas.addEventListener("touchcancel", endSignatureStroke);
 
       function saveSignature() {
-        sigDataInput.value = canvas.toDataURL();
+        signatureImageData = canvas.toDataURL();
+        sigDataInput.value = "Signed";
       }
 
       function clearSig() {
         const dpr = window.devicePixelRatio || 1;
         ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+        signatureImageData = "";
         sigDataInput.value = "";
         hasSig = false;
       }
