@@ -200,7 +200,17 @@
         margin-top: 8px;
       }
 
-      .field.is-invalid :is(
+      .signature-error-slot {
+        min-height: 1.4em;
+        visibility: hidden;
+      }
+
+      .signature-error-slot:not(:empty) {
+        visibility: visible;
+      }
+
+      .field.is-invalid
+        :is(
           input:not([type="radio"]),
           textarea,
           select,
@@ -210,7 +220,8 @@
         border-color: #c89999;
       }
 
-      .field.is-invalid :is(
+      .field.is-invalid
+        :is(
           input:not([type="radio"]),
           textarea,
           select,
@@ -1124,9 +1135,7 @@
 
         <div class="card">
           <div class="card-title">Signature <span class="req">*</span></div>
-          <p class="signature-hint">
-            Sign below using your mouse or finger.
-          </p>
+          <p class="signature-hint">Sign below using your mouse or finger.</p>
           <div class="field">
             <div class="signature-wrap">
               <div class="signature-pad">
@@ -1137,6 +1146,11 @@
                   height="100"
                 ></canvas>
               </div>
+              <p
+                class="field-error signature-error-slot"
+                role="alert"
+                aria-live="polite"
+              ></p>
               <input type="hidden" id="sigData" name="Signature" />
               <div class="sig-actions">
                 <button type="button" class="sig-clear" onclick="clearSig()">
@@ -1181,7 +1195,16 @@
       function clearFieldError(field) {
         if (!field) return;
         field.classList.remove("is-invalid");
-        field.querySelectorAll(".field-error").forEach((error) => error.remove());
+        field
+          .querySelectorAll(".field-error")
+          .forEach((error) => {
+            if (error.classList.contains("signature-error-slot")) {
+              error.textContent = "";
+              return;
+            }
+
+            error.remove();
+          });
       }
 
       function clearFormError() {
@@ -1339,7 +1362,6 @@
         hasSig = false;
       }
 
-
       function resizeAutoTextarea(textarea) {
         textarea.style.height = "auto";
         textarea.style.height = `${textarea.scrollHeight}px`;
@@ -1430,7 +1452,14 @@
 
           list.appendChild(optionsList);
 
-          const customSelect = { wrap, select, trigger, list, optionsList, options };
+          const customSelect = {
+            wrap,
+            select,
+            trigger,
+            list,
+            optionsList,
+            options,
+          };
           customSelects.push(customSelect);
 
           function refreshCustomSelect() {
@@ -1566,17 +1595,24 @@
         if (!field) return;
         clearFieldError(field);
         field.classList.add("is-invalid");
-        const error = document.createElement("p");
-        error.className = "field-error";
-        error.setAttribute("role", "alert");
-        error.textContent = message;
-
         const anchor = insertAfterSelector
           ? field.querySelector(insertAfterSelector)
           : null;
-        if (anchor) {
+        const reusableError = anchor
+          ? field.querySelector(".signature-error-slot")
+          : null;
+        const error = reusableError || document.createElement("p");
+
+        if (!reusableError) {
+          error.className = "field-error";
+          error.setAttribute("role", "alert");
+        }
+
+        error.textContent = message;
+
+        if (anchor && !reusableError) {
           anchor.insertAdjacentElement("afterend", error);
-        } else {
+        } else if (!reusableError) {
           field.appendChild(error);
         }
       }
@@ -1597,16 +1633,18 @@
           setFieldError(emailField, "This field is required");
           firstInvalidField ??= emailField;
         } else if (!isValidEmail(emailInput.value)) {
-          setFieldError(emailField, "Enter a valid email address.");
+          setFieldError(emailField, "Enter a valid email address");
           firstInvalidField ??= emailField;
         }
 
         if (phoneInput.value.trim() && !isValidPhone(phoneInput.value)) {
-          setFieldError(phoneField, "Enter a valid phone number.");
+          setFieldError(phoneField, "Enter a valid phone number");
           firstInvalidField ??= phoneField;
         }
 
-        const readyField = document.getElementById("readyYes").closest(".field");
+        const readyField = document
+          .getElementById("readyYes")
+          .closest(".field");
         if (!form.querySelector('input[name="Ready to Begin"]:checked')) {
           setFieldError(readyField, "This field is required");
           firstInvalidField ??= readyField;
@@ -1616,7 +1654,11 @@
           .querySelector(".signature-wrap")
           ?.closest(".field");
         if (!hasSig) {
-          setFieldError(signatureField, "This field is required", ".signature-pad");
+          setFieldError(
+            signatureField,
+            "This field is required",
+            ".signature-pad",
+          );
           firstInvalidField ??= signatureField;
         }
 
