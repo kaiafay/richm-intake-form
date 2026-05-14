@@ -1191,6 +1191,7 @@
       const formError = document.getElementById("formError");
       const successMsg = document.getElementById("successMsg");
       const submitBtn = form.querySelector(".submit-btn");
+      const sigDataInput = document.getElementById("sigData");
 
       function clearFieldError(field) {
         if (!field) return;
@@ -1275,7 +1276,28 @@
         saveSignature();
       }
 
+      function configureSignatureCanvas(dpr) {
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.scale(dpr, dpr);
+        ctx.strokeStyle = "#1E1E1E";
+        ctx.lineWidth = 1.8;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+      }
+
+      function restoreSignature(dataUrl) {
+        if (!dataUrl) return;
+
+        const image = new Image();
+        image.onload = () => {
+          const dpr = window.devicePixelRatio || 1;
+          ctx.drawImage(image, 0, 0, canvas.width / dpr, canvas.height / dpr);
+        };
+        image.src = dataUrl;
+      }
+
       function resizeCanvas() {
+        const signatureData = sigDataInput.value;
         const pad = canvas.parentElement;
         const rect = pad.getBoundingClientRect();
         const dpr = window.devicePixelRatio || 1;
@@ -1285,12 +1307,8 @@
         canvas.height = Math.floor(height * dpr);
         canvas.style.width = "100%";
         canvas.style.height = `${height}px`;
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.scale(dpr, dpr);
-        ctx.strokeStyle = "#1E1E1E";
-        ctx.lineWidth = 1.8;
-        ctx.lineCap = "round";
-        ctx.lineJoin = "round";
+        configureSignatureCanvas(dpr);
+        restoreSignature(signatureData);
       }
 
       resizeCanvas();
@@ -1352,13 +1370,13 @@
       canvas.addEventListener("touchcancel", endSignatureStroke);
 
       function saveSignature() {
-        document.getElementById("sigData").value = canvas.toDataURL();
+        sigDataInput.value = canvas.toDataURL();
       }
 
       function clearSig() {
         const dpr = window.devicePixelRatio || 1;
         ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
-        document.getElementById("sigData").value = "";
+        sigDataInput.value = "";
         hasSig = false;
       }
 
