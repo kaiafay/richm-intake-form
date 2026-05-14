@@ -616,6 +616,10 @@
         border: 1px solid var(--border);
       }
 
+      .success-msg.is-visible {
+        display: block;
+      }
+
       .success-msg h2 {
         font-family: "Cormorant Garamond", serif;
         font-size: 2rem;
@@ -634,6 +638,16 @@
         font-size: 12px;
         color: var(--text-muted);
         margin-top: 16px;
+      }
+
+      .signature-hint {
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-bottom: 14px;
+      }
+
+      #intakeForm.is-hidden {
+        display: none;
       }
 
       /* Conditional sections */
@@ -1110,13 +1124,7 @@
 
         <div class="card">
           <div class="card-title">Signature <span class="req">*</span></div>
-          <p
-            style="
-              font-size: 13px;
-              color: var(--text-muted);
-              margin-bottom: 14px;
-            "
-          >
+          <p class="signature-hint">
             Sign below using your mouse or finger.
           </p>
           <div class="field">
@@ -1646,8 +1654,8 @@
           });
 
           if (res.ok) {
-            form.style.display = "none";
-            document.getElementById("successMsg").style.display = "block";
+            form.classList.add("is-hidden");
+            document.getElementById("successMsg").classList.add("is-visible");
             window.scrollTo({ top: 0, behavior: "smooth" });
           } else {
             submitBtn.textContent = "Submit Intake Form";
