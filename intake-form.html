@@ -1279,6 +1279,15 @@
         return { x: src.clientX - r.left, y: src.clientY - r.top };
       }
 
+      function continueSignatureStroke(e) {
+        if (!drawing) return;
+        const p = getPos(e);
+        ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+        hasSig = true;
+        clearFieldError(canvas.closest(".field"));
+      }
+
       canvas.addEventListener("mousedown", (e) => {
         drawing = true;
         const p = getPos(e);
@@ -1286,12 +1295,7 @@
         ctx.moveTo(p.x, p.y);
       });
       canvas.addEventListener("mousemove", (e) => {
-        if (!drawing) return;
-        const p = getPos(e);
-        ctx.lineTo(p.x, p.y);
-        ctx.stroke();
-        hasSig = true;
-        clearFieldError(canvas.closest(".field"));
+        continueSignatureStroke(e);
       });
       canvas.addEventListener("mouseup", endSignatureStroke);
       canvas.addEventListener(
@@ -1310,12 +1314,7 @@
         "touchmove",
         (e) => {
           e.preventDefault();
-          if (!drawing) return;
-          const p = getPos(e);
-          ctx.lineTo(p.x, p.y);
-          ctx.stroke();
-          hasSig = true;
-          clearFieldError(canvas.closest(".field"));
+          continueSignatureStroke(e);
         },
         { passive: false },
       );
