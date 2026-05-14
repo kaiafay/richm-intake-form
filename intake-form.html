@@ -176,18 +176,19 @@
         margin-left: 2px;
       }
 
-      .field-error {
-        margin: 0;
+      .field-error,
+      .form-error {
         font-size: 12px;
         line-height: 1.4;
         color: #8f6363;
       }
 
+      .field-error {
+        margin: 0;
+      }
+
       .form-error {
         margin: 12px 0 0;
-        font-size: 12px;
-        line-height: 1.4;
-        color: #8f6363;
         text-align: center;
       }
 
@@ -216,7 +217,6 @@
           .custom-select-trigger,
           .sig-canvas
         ):focus {
-        border-color: #c89999;
         box-shadow: 0 0 0 3px rgba(201, 153, 153, 0.16);
       }
 
