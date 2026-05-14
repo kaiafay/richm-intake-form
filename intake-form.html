@@ -1172,6 +1172,11 @@
       let hasSig = false;
       let signatureScrollY = 0;
       const form = document.getElementById("intakeForm");
+      const emailInput = document.getElementById("email");
+      const phoneInput = document.getElementById("phone");
+      const formError = document.getElementById("formError");
+      const successMsg = document.getElementById("successMsg");
+      const submitBtn = form.querySelector(".submit-btn");
 
       function clearFieldError(field) {
         if (!field) return;
@@ -1180,18 +1185,31 @@
       }
 
       function clearFormError() {
-        const formError = document.getElementById("formError");
         if (!formError) return;
         formError.textContent = "";
         formError.hidden = true;
       }
 
       function setFormError(message) {
-        const formError = document.getElementById("formError");
         if (!formError) return;
         formError.textContent = message;
         formError.hidden = false;
         formError.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+
+      function clearFieldAndFormError(field) {
+        clearFieldError(field);
+        clearFormError();
+      }
+
+      function resetSubmitButton() {
+        submitBtn.textContent = "Submit Intake Form";
+        submitBtn.disabled = false;
+      }
+
+      function failSubmit(message) {
+        resetSubmitButton();
+        setFormError(message);
       }
 
       function formatPhoneValue(digits) {
@@ -1573,9 +1591,7 @@
         clearFormErrors();
 
         let firstInvalidField = null;
-        const emailInput = document.getElementById("email");
         const emailField = emailInput.closest(".field");
-        const phoneInput = document.getElementById("phone");
         const phoneField = phoneInput.closest(".field");
 
         if (!emailInput.value.trim()) {
@@ -1616,22 +1632,18 @@
         return true;
       }
 
-      const phoneInput = document.getElementById("phone");
       phoneInput.addEventListener("input", () => {
         const digits = phoneInput.value.replace(/\D/g, "").slice(0, 10);
         phoneInput.value = formatPhoneValue(digits);
-        clearFieldError(phoneInput.closest(".field"));
-        clearFormError();
+        clearFieldAndFormError(phoneInput.closest(".field"));
       });
 
       form.addEventListener("input", (e) => {
-        clearFieldError(e.target.closest(".field"));
-        clearFormError();
+        clearFieldAndFormError(e.target.closest(".field"));
       });
 
       form.addEventListener("change", (e) => {
-        clearFieldError(e.target.closest(".field"));
-        clearFormError();
+        clearFieldAndFormError(e.target.closest(".field"));
       });
 
       // Formspree submission
@@ -1640,7 +1652,6 @@
 
         if (!validateForm()) return;
 
-        const submitBtn = form.querySelector(".submit-btn");
         submitBtn.textContent = "Submitting…";
         submitBtn.disabled = true;
 
@@ -1655,19 +1666,15 @@
 
           if (res.ok) {
             form.classList.add("is-hidden");
-            document.getElementById("successMsg").classList.add("is-visible");
+            successMsg.classList.add("is-visible");
             window.scrollTo({ top: 0, behavior: "smooth" });
           } else {
-            submitBtn.textContent = "Submit Intake Form";
-            submitBtn.disabled = false;
-            setFormError(
+            failSubmit(
               "Something went wrong. Please try again or contact us directly.",
             );
           }
         } catch {
-          submitBtn.textContent = "Submit Intake Form";
-          submitBtn.disabled = false;
-          setFormError(
+          failSubmit(
             "Something went wrong. Please check your connection and try again.",
           );
         }
